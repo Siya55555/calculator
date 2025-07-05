@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { calculatePriceBreakdown, getProjectTypeName } from '../config/pricing';
 import { jsPDF } from 'jspdf';
+import heroImg from '../assets/react.svg'; // Placeholder, replace with your own image later
 
 
 // Types
@@ -426,7 +427,53 @@ const PDFButton = styled(Button)`
   }
 `;
 
-
+// Intro/Landing Page
+const IntroContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+  padding: 36px 18px 32px 18px;
+  margin-bottom: 32px;
+`;
+const HeroImg = styled.img`
+  width: 100%;
+  max-width: 480px;
+  border-radius: 12px;
+  margin-bottom: 28px;
+  object-fit: cover;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+`;
+const IntroHeadline = styled.h1`
+  font-size: 2rem;
+  font-weight: 800;
+  color: #222;
+  margin-bottom: 10px;
+  text-align: center;
+`;
+const IntroDesc = styled.p`
+  font-size: 1.15rem;
+  color: #444;
+  margin-bottom: 24px;
+  text-align: center;
+  max-width: 520px;
+`;
+const StartButton = styled(Button)`
+  background: linear-gradient(90deg, #19c6e6 0%, #00b4d8 100%);
+  font-size: 1.18rem;
+  font-weight: 700;
+  padding: 18px 38px;
+  border-radius: 8px;
+  margin-top: 10px;
+  box-shadow: 0 2px 8px rgba(25,198,230,0.10);
+  &:hover {
+    background: linear-gradient(90deg, #00b4d8 0%, #19c6e6 100%);
+  }
+`;
 
 const Questionnaire: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -443,6 +490,7 @@ const Questionnaire: React.FC = () => {
     consent: false
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
 
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
@@ -747,6 +795,21 @@ const Questionnaire: React.FC = () => {
         return null;
     }
   };
+
+  if (showIntro) {
+    return (
+      <Container>
+        <IntroContainer>
+          <HeroImg src={heroImg} alt="Baderomsrenovering" />
+          <IntroHeadline>Ditt drømmebad venter</IntroHeadline>
+          <IntroDesc>Få et nøyaktig pristilbud på under 3 minutter. Vår kalkulator tar hensyn til størrelse, tilstand og dine ønsker.</IntroDesc>
+          <StartButton onClick={() => setShowIntro(false)}>
+            Start Kalkulatoren
+          </StartButton>
+        </IntroContainer>
+      </Container>
+    );
+  }
 
   return (
     <Container>
