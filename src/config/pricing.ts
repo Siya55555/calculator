@@ -6,6 +6,12 @@ export interface PricingConfig {
   currencyFormat: string;
 }
 
+export interface PriceBreakdown {
+  materials: number;
+  labor: number;
+  total: number;
+}
+
 export const PRICING_CONFIG: PricingConfig = {
   basePrices: {
     totalrenovering: 2500,  // kr per m² for total renovation
@@ -22,13 +28,27 @@ export const PRICING_CONFIG: PricingConfig = {
   currencyFormat: 'no-NO'
 };
 
-// Calculate price based on project type and area
-export const calculatePrice = (projectType: string, area: number): string => {
+// Calculate detailed price breakdown
+export const calculatePriceBreakdown = (projectType: string, area: number): PriceBreakdown => {
   const basePrice = PRICING_CONFIG.basePrices[projectType] || PRICING_CONFIG.basePrices.annet;
   const areaMultiplier = Math.max(area, 1);
   const totalPrice = basePrice * areaMultiplier * PRICING_CONFIG.areaMultiplier;
   
-  return totalPrice.toLocaleString(PRICING_CONFIG.currencyFormat);
+  // Split into materials (60%) and labor (40%)
+  const materials = Math.round(totalPrice * 0.6);
+  const labor = Math.round(totalPrice * 0.4);
+  
+  return {
+    materials,
+    labor,
+    total: totalPrice
+  };
+};
+
+// Calculate price based on project type and area
+export const calculatePrice = (projectType: string, area: number): string => {
+  const breakdown = calculatePriceBreakdown(projectType, area);
+  return breakdown.total.toLocaleString(PRICING_CONFIG.currencyFormat);
 };
 
 // Get project type name by ID

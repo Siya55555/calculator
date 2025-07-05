@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { calculatePrice, getProjectTypeName } from '../config/pricing';
+import { calculatePriceBreakdown, getProjectTypeName } from '../config/pricing';
+import jsPDF from 'jspdf';
 
 // Types
 interface FormData {
@@ -40,6 +41,11 @@ const Container = styled.div`
   margin: 0 auto;
   padding: 20px;
   font-family: 'Arial', sans-serif;
+  
+  @media (max-width: 768px) {
+    padding: 15px;
+    max-width: 100%;
+  }
 `;
 
 const StepContainer = styled.div`
@@ -48,6 +54,10 @@ const StepContainer = styled.div`
   padding: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
 `;
 
 const ProgressBar = styled.div`
@@ -66,6 +76,21 @@ const ProgressFill = styled.div<{ progress: number }>`
   width: ${props => props.progress}%;
 `;
 
+const StepCounter = styled.div`
+  text-align: center;
+  margin-bottom: 20px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 500;
+`;
+
+const StepNumber = styled.span`
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  margin: 0 5px;
+`;
+
 const Title = styled.h2`
   color: #333;
   margin-bottom: 20px;
@@ -77,6 +102,11 @@ const ProjectTypeGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 15px;
   margin-bottom: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 `;
 
 const ProjectTypeCard = styled.div<{ selected: boolean }>`
@@ -91,22 +121,38 @@ const ProjectTypeCard = styled.div<{ selected: boolean }>`
     border-color: #007bff;
     transform: translateY(-2px);
   }
+  
+  @media (max-width: 768px) {
+    padding: 15px;
+  }
 `;
 
 const ProjectTypeName = styled.h3`
   margin: 0 0 8px 0;
   color: #333;
   font-size: 16px;
+  
+  @media (max-width: 768px) {
+    font-size: 15px;
+  }
 `;
 
 const ProjectTypeDescription = styled.p`
   margin: 0;
   color: #666;
   font-size: 14px;
+  
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
 `;
 
 const FormGroup = styled.div`
   margin-bottom: 20px;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 15px;
+  }
 `;
 
 const Label = styled.label`
@@ -114,6 +160,10 @@ const Label = styled.label`
   margin-bottom: 8px;
   font-weight: 600;
   color: #333;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 const Input = styled.input`
@@ -127,6 +177,11 @@ const Input = styled.input`
   &:focus {
     outline: none;
     border-color: #007bff;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 10px;
+    font-size: 16px; // Prevents zoom on iOS
   }
 `;
 
@@ -144,6 +199,12 @@ const TextArea = styled.textarea`
     outline: none;
     border-color: #007bff;
   }
+  
+  @media (max-width: 768px) {
+    padding: 10px;
+    font-size: 16px;
+    min-height: 80px;
+  }
 `;
 
 const Select = styled.select`
@@ -158,6 +219,11 @@ const Select = styled.select`
   &:focus {
     outline: none;
     border-color: #007bff;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 10px;
+    font-size: 16px;
   }
 `;
 
@@ -190,34 +256,144 @@ const Button = styled.button`
     background: #ccc;
     cursor: not-allowed;
   }
+  
+  @media (max-width: 768px) {
+    padding: 15px 20px;
+    font-size: 16px;
+    width: 100%;
+  }
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: 30px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 10px;
+  }
 `;
 
 const PriceDisplay = styled.div`
-  background: #f8f9fa;
-  border: 2px solid #007bff;
-  border-radius: 8px;
-  padding: 20px;
   text-align: center;
-  margin-top: 20px;
+  padding: 30px;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+  border-radius: 12px;
+  margin-bottom: 20px;
 `;
 
 const PriceAmount = styled.div`
-  font-size: 32px;
+  font-size: 3rem;
   font-weight: bold;
   color: #007bff;
   margin-bottom: 10px;
+  
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
 `;
 
-const PriceDescription = styled.p`
+const PriceDescription = styled.div`
+  font-size: 1.1rem;
   color: #666;
-  margin: 0;
+  margin-bottom: 20px;
 `;
+
+const PriceBreakdown = styled.div`
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #e0e0e0;
+`;
+
+const BreakdownItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  
+  &:last-child {
+    border-bottom: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+`;
+
+const TestimonialsSection = styled.div`
+  background: white;
+  border-radius: 8px;
+  padding: 25px;
+  margin-top: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+`;
+
+const TestimonialsTitle = styled.h3`
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+`;
+
+const TestimonialCard = styled.div`
+  background: #f8f9ff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-left: 4px solid #007bff;
+`;
+
+const TestimonialText = styled.p`
+  color: #555;
+  font-style: italic;
+  margin-bottom: 10px;
+  line-height: 1.5;
+`;
+
+const TestimonialAuthor = styled.div`
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+`;
+
+const LoadingSpinner = styled.div`
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+const LoadingButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const PDFButton = styled(Button)`
+  background: #28a745;
+  margin-top: 20px;
+  
+  &:hover {
+    background: #218838;
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+
 
 const Questionnaire: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -233,6 +409,7 @@ const Questionnaire: React.FC = () => {
     phone: '',
     consent: false
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
@@ -241,9 +418,13 @@ const Questionnaire: React.FC = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (currentStep < totalSteps) {
+      setIsLoading(true);
+      // Simulate loading for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
       setCurrentStep(currentStep + 1);
+      setIsLoading(false);
     }
   };
 
@@ -253,8 +434,72 @@ const Questionnaire: React.FC = () => {
     }
   };
 
-  const getPriceEstimate = () => {
-    return calculatePrice(formData.projectType, formData.area);
+  const getPriceBreakdown = () => {
+    return calculatePriceBreakdown(formData.projectType, formData.area);
+  };
+
+  const generatePDF = async () => {
+    const breakdown = getPriceBreakdown();
+    const pdf = new jsPDF();
+    
+    // Add company header
+    pdf.setFontSize(24);
+    pdf.setTextColor(0, 123, 255);
+    pdf.text('Badbygg VVS', 20, 30);
+    
+    pdf.setFontSize(12);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text('Få ditt prisestimat på 2 minutter', 20, 40);
+    
+    // Add line separator
+    pdf.setDrawColor(0, 123, 255);
+    pdf.setLineWidth(0.5);
+    pdf.line(20, 50, 190, 50);
+    
+    // Add quote details
+    pdf.setFontSize(16);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text('Prisestimat', 20, 70);
+    
+    pdf.setFontSize(12);
+    pdf.text(`Prosjekttype: ${getProjectTypeName(formData.projectType)}`, 20, 85);
+    pdf.text(`Areal: ${formData.area} m²`, 20, 95);
+    pdf.text(`Lokasjon: ${formData.location}`, 20, 105);
+    
+    if (formData.description) {
+      pdf.text(`Beskrivelse: ${formData.description.substring(0, 80)}${formData.description.length > 80 ? '...' : ''}`, 20, 115);
+    }
+    
+    // Add price breakdown
+    pdf.setFontSize(14);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text('Prisoverslag:', 20, 140);
+    
+    pdf.setFontSize(12);
+    pdf.text(`Materialer (60%): kr ${breakdown.materials.toLocaleString('no-NO')}`, 20, 155);
+    pdf.text(`Arbeid (40%): kr ${breakdown.labor.toLocaleString('no-NO')}`, 20, 165);
+    
+    pdf.setFontSize(16);
+    pdf.setTextColor(0, 123, 255);
+    pdf.text(`Total: kr ${breakdown.total.toLocaleString('no-NO')}`, 20, 180);
+    
+    // Add contact information
+    pdf.setFontSize(12);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text('Kontaktinformasjon:', 20, 200);
+    pdf.text(`Navn: ${formData.name}`, 20, 210);
+    pdf.text(`E-post: ${formData.email}`, 20, 220);
+    pdf.text(`Telefon: ${formData.phone}`, 20, 230);
+    
+    // Add footer
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text('Dette er et estimat basert på oppgitt informasjon. Kontakt oss for et detaljert tilbud.', 20, 250);
+    pdf.text(`Generert: ${new Date().toLocaleDateString('no-NO')}`, 20, 260);
+    
+    // Save the PDF
+    const fileName = `badbygg-vvs-estimat-${formData.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+    pdf.save(fileName);
   };
 
   const canProceed = () => {
@@ -385,20 +630,68 @@ const Questionnaire: React.FC = () => {
     </StepContainer>
   );
 
-  const renderStep5 = () => (
-    <StepContainer>
-      <Title>Din prisestimat</Title>
-      <PriceDisplay>
-        <PriceAmount>kr {getPriceEstimate()}</PriceAmount>
-        <PriceDescription>
-          Basert på {getProjectTypeName(formData.projectType)} på {formData.area} m²
-        </PriceDescription>
-      </PriceDisplay>
-      <p style={{ textAlign: 'center', color: '#666', marginTop: '20px' }}>
-        Vi vil kontakte deg innen kort tid for å diskutere prosjektet ditt og gi deg et mer detaljert tilbud.
-      </p>
-    </StepContainer>
-  );
+  const renderStep5 = () => {
+    const breakdown = getPriceBreakdown();
+    
+    return (
+      <>
+        <StepContainer>
+          <Title>Din prisestimat</Title>
+          <PriceDisplay>
+            <PriceAmount>kr {breakdown.total.toLocaleString('no-NO')}</PriceAmount>
+            <PriceDescription>
+              Basert på {getProjectTypeName(formData.projectType)} på {formData.area} m²
+            </PriceDescription>
+          </PriceDisplay>
+          
+          <PriceBreakdown>
+            <BreakdownItem>
+              <span>Materialer (60%)</span>
+              <span>kr {breakdown.materials.toLocaleString('no-NO')}</span>
+            </BreakdownItem>
+            <BreakdownItem>
+              <span>Arbeid (40%)</span>
+              <span>kr {breakdown.labor.toLocaleString('no-NO')}</span>
+            </BreakdownItem>
+            <BreakdownItem>
+              <span>Total</span>
+              <span>kr {breakdown.total.toLocaleString('no-NO')}</span>
+            </BreakdownItem>
+          </PriceBreakdown>
+          
+          <p style={{ textAlign: 'center', color: '#666', marginTop: '20px' }}>
+            Vi vil kontakte deg innen kort tid for å diskutere prosjektet ditt og gi deg et mer detaljert tilbud.
+          </p>
+          
+          <PDFButton onClick={generatePDF}>
+            📄 Lagre som PDF
+          </PDFButton>
+        </StepContainer>
+        
+        <TestimonialsSection>
+          <TestimonialsTitle>Hva våre kunder sier</TestimonialsTitle>
+          <TestimonialCard>
+            <TestimonialText>
+              "Badbygg VVS gjorde en fantastisk jobb med badrenoveringen vår. Profesjonell service og kvalitetsarbeid!"
+            </TestimonialText>
+            <TestimonialAuthor>- Mari og Erik, Oslo</TestimonialAuthor>
+          </TestimonialCard>
+          <TestimonialCard>
+            <TestimonialText>
+              "Rask levering og god kommunikasjon gjennom hele prosessen. Anbefales på det sterkeste!"
+            </TestimonialText>
+            <TestimonialAuthor>- Lars Hansen, Bergen</TestimonialAuthor>
+          </TestimonialCard>
+          <TestimonialCard>
+            <TestimonialText>
+              "Fikk et ærlig tilbud og jobben ble gjort til avtalt pris og tid. Veldig fornøyd!"
+            </TestimonialText>
+            <TestimonialAuthor>- Anne Kristin, Trondheim</TestimonialAuthor>
+          </TestimonialCard>
+        </TestimonialsSection>
+      </>
+    );
+  };
 
   const renderCurrentStep = () => {
     switch (currentStep) {
@@ -423,18 +716,30 @@ const Questionnaire: React.FC = () => {
         <ProgressFill progress={progress} />
       </ProgressBar>
       
+      <StepCounter>
+        <StepNumber>{currentStep}</StepNumber>
+        {currentStep} av {totalSteps}
+      </StepCounter>
+
       {renderCurrentStep()}
 
       <ButtonContainer>
         {currentStep > 1 && (
-          <Button onClick={prevStep}>
+          <Button onClick={prevStep} disabled={isLoading}>
             Tilbake
           </Button>
         )}
         {currentStep < totalSteps && (
-          <Button onClick={nextStep} disabled={!canProceed()}>
-            Neste
-          </Button>
+          <LoadingButton onClick={nextStep} disabled={!canProceed() || isLoading}>
+            {isLoading ? (
+              <>
+                <LoadingSpinner />
+                Beregner...
+              </>
+            ) : (
+              'Neste'
+            )}
+          </LoadingButton>
         )}
       </ButtonContainer>
     </Container>
