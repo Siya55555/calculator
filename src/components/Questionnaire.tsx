@@ -118,51 +118,50 @@ const Title = styled.h2`
 
 const ProjectTypeGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
   margin-bottom: 20px;
-  
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 12px;
   }
 `;
 
 const ProjectTypeCard = styled.div<{ selected: boolean }>`
-  padding: 20px;
-  border: 2px solid ${props => props.selected ? '#007bff' : '#e0e0e0'};
-  border-radius: 8px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(25,198,230,0.08), 0 1.5px 6px rgba(0,0,0,0.04);
+  border: 2.5px solid ${props => props.selected ? '#19c6e6' : '#e0e0e0'};
+  padding: 28px 18px 22px 18px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background: ${props => props.selected ? '#f8f9ff' : 'white'};
-
+  transition: all 0.18s cubic-bezier(.4,1.3,.6,1);
+  background: ${props => props.selected ? 'linear-gradient(90deg, #e6fafd 0%, #f8f9ff 100%)' : '#fff'};
   &:hover {
-    border-color: #007bff;
-    transform: translateY(-2px);
+    border-color: #19c6e6;
+    box-shadow: 0 4px 18px rgba(25,198,230,0.13);
+    transform: translateY(-2px) scale(1.02);
   }
-  
   @media (max-width: 768px) {
-    padding: 15px;
+    padding: 18px 10px 16px 10px;
   }
 `;
 
 const ProjectTypeName = styled.h3`
   margin: 0 0 8px 0;
-  color: #333;
-  font-size: 16px;
-  
+  color: #222;
+  font-size: 1.18rem;
+  font-weight: 700;
   @media (max-width: 768px) {
-    font-size: 15px;
+    font-size: 1.08rem;
   }
 `;
 
 const ProjectTypeDescription = styled.p`
   margin: 0;
   color: #666;
-  font-size: 14px;
-  
+  font-size: 0.98rem;
   @media (max-width: 768px) {
-    font-size: 13px;
+    font-size: 0.95rem;
   }
 `;
 
@@ -226,28 +225,6 @@ const TextArea = styled.textarea`
     padding: 14px;
     font-size: 17px;
     min-height: 80px;
-  }
-`;
-
-const Select = styled.select`
-  width: 100%;
-  padding: 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 17px;
-  background: white;
-  transition: border-color 0.2s ease;
-  min-height: 44px;
-
-  &:focus {
-    outline: none;
-    border-color: #007bff;
-  }
-  
-  @media (max-width: 768px) {
-    padding: 14px;
-    font-size: 17px;
-    min-height: 48px;
   }
 `;
 
@@ -475,6 +452,51 @@ const StartButton = styled(Button)`
   }
 `;
 
+const CardContainer = styled.div`
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(25,198,230,0.08), 0 1.5px 6px rgba(0,0,0,0.04);
+  padding: 28px 18px 22px 18px;
+  margin-bottom: 18px;
+  @media (max-width: 768px) {
+    padding: 18px 10px 16px 10px;
+  }
+`;
+
+const StartDateGrid = styled.div`
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 8px;
+  }
+`;
+
+const StartDateCard = styled.div<{ selected: boolean }>`
+  background: ${props => props.selected ? 'linear-gradient(90deg, #e6fafd 0%, #f8f9ff 100%)' : '#fff'};
+  border: 2.5px solid ${props => props.selected ? '#19c6e6' : '#e0e0e0'};
+  border-radius: 10px;
+  padding: 14px 22px;
+  font-size: 1.05rem;
+  color: #222;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(.4,1.3,.6,1);
+  box-shadow: 0 1px 6px rgba(25,198,230,0.06);
+  &:hover {
+    border-color: #19c6e6;
+    box-shadow: 0 2px 10px rgba(25,198,230,0.10);
+    transform: translateY(-1px) scale(1.01);
+  }
+  @media (max-width: 600px) {
+    width: 100%;
+    text-align: center;
+    padding: 14px 0;
+  }
+`;
+
 const Questionnaire: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
@@ -624,157 +646,166 @@ const Questionnaire: React.FC = () => {
   const renderStep2 = () => (
     <StepContainer>
       <Title>Prosjektdetaljer</Title>
-      <FormGroup>
-        <Label>Beskriv prosjektet ditt</Label>
-        <TextArea
-          value={formData.description}
-          onChange={(e) => updateFormData('description', e.target.value)}
-          placeholder="Beskriv hva du ønsker å gjøre..."
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label>Areal (m²)</Label>
-        <Input
-          type="number"
-          value={formData.area}
-          onChange={(e) => updateFormData('area', Number(e.target.value))}
-          placeholder="F.eks. 50"
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label>Ønsket startdato</Label>
-        <Select
-          value={formData.startDate}
-          onChange={(e) => updateFormData('startDate', e.target.value)}
-        >
-          <option value="">Velg startdato</option>
-          <option value="asap">Så snart som mulig</option>
-          <option value="1month">Innen 1 måned</option>
-          <option value="3months">Innen 3 måneder</option>
-          <option value="6months">Innen 6 måneder</option>
-          <option value="flexible">Fleksibelt</option>
-        </Select>
-      </FormGroup>
+      <CardContainer>
+        <FormGroup>
+          <Label>Beskriv prosjektet ditt</Label>
+          <TextArea
+            value={formData.description}
+            onChange={(e) => updateFormData('description', e.target.value)}
+            placeholder="Beskriv hva du ønsker å gjøre..."
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Areal (m²)</Label>
+          <Input
+            type="number"
+            value={formData.area}
+            onChange={(e) => updateFormData('area', Number(e.target.value))}
+            placeholder="F.eks. 50"
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Ønsket startdato</Label>
+          <StartDateGrid>
+            {[
+              { value: 'asap', label: 'Så snart som mulig' },
+              { value: '1month', label: 'Innen 1 måned' },
+              { value: '3months', label: 'Innen 3 måneder' },
+              { value: '6months', label: 'Innen 6 måneder' },
+              { value: 'flexible', label: 'Fleksibelt' },
+            ].map(opt => (
+              <StartDateCard
+                key={opt.value}
+                selected={formData.startDate === opt.value}
+                onClick={() => updateFormData('startDate', opt.value)}
+              >
+                {opt.label}
+              </StartDateCard>
+            ))}
+          </StartDateGrid>
+        </FormGroup>
+      </CardContainer>
     </StepContainer>
   );
 
   const renderStep3 = () => (
     <StepContainer>
       <Title>Lokasjon</Title>
-      <FormGroup>
-        <Label>Adresse eller postnummer</Label>
-        <Input
-          type="text"
-          value={formData.location}
-          onChange={(e) => updateFormData('location', e.target.value)}
-          placeholder="F.eks. Oslo, 0123"
-        />
-      </FormGroup>
+      <CardContainer>
+        <FormGroup>
+          <Label>Adresse eller postnummer</Label>
+          <Input
+            type="text"
+            value={formData.location}
+            onChange={(e) => updateFormData('location', e.target.value)}
+            placeholder="F.eks. Oslo, 0123"
+          />
+        </FormGroup>
+      </CardContainer>
     </StepContainer>
   );
 
   const renderStep4 = () => (
     <StepContainer>
       <Title>Kontaktinformasjon</Title>
-      <FormGroup>
-        <Label>Navn <span style={{ color: 'red', marginLeft: 2 }}>*</span></Label>
-        <Input
-          type="text"
-          value={formData.name}
-          onChange={(e) => updateFormData('name', e.target.value)}
-          placeholder="Ditt navn"
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label>E-post <span style={{ color: 'red', marginLeft: 2 }}>*</span></Label>
-        <Input
-          type="email"
-          value={formData.email}
-          onChange={(e) => updateFormData('email', e.target.value)}
-          placeholder="din@email.no"
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label>Telefon <span style={{ color: 'red', marginLeft: 2 }}>*</span></Label>
-        <Input
-          type="tel"
-          value={formData.phone}
-          onChange={(e) => updateFormData('phone', e.target.value)}
-          placeholder="123 45 678"
-        />
-      </FormGroup>
-      <CheckboxContainer>
-        <Checkbox
-          type="checkbox"
-          checked={formData.consent}
-          onChange={(e) => updateFormData('consent', e.target.checked)}
-        />
-        <Label style={{ margin: 0, fontWeight: 'normal' }}>
-          Jeg godtar at Badbygg VVS kan kontakte meg angående dette prosjektet
-        </Label>
-      </CheckboxContainer>
+      <CardContainer>
+        <FormGroup>
+          <Label>Navn <span style={{ color: 'red', marginLeft: 2 }}>*</span></Label>
+          <Input
+            type="text"
+            value={formData.name}
+            onChange={(e) => updateFormData('name', e.target.value)}
+            placeholder="Ditt navn"
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>E-post <span style={{ color: 'red', marginLeft: 2 }}>*</span></Label>
+          <Input
+            type="email"
+            value={formData.email}
+            onChange={(e) => updateFormData('email', e.target.value)}
+            placeholder="din@email.no"
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label>Telefon <span style={{ color: 'red', marginLeft: 2 }}>*</span></Label>
+          <Input
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => updateFormData('phone', e.target.value)}
+            placeholder="123 45 678"
+          />
+        </FormGroup>
+        <CheckboxContainer>
+          <Checkbox
+            type="checkbox"
+            checked={formData.consent}
+            onChange={(e) => updateFormData('consent', e.target.checked)}
+          />
+          <Label style={{ margin: 0, fontWeight: 'normal' }}>
+            Jeg godtar at Badbygg VVS kan kontakte meg angående dette prosjektet
+          </Label>
+        </CheckboxContainer>
+      </CardContainer>
     </StepContainer>
   );
 
   const renderStep5 = () => {
     const breakdown = getPriceBreakdown();
-    
     return (
       <>
         <StepContainer>
           <Title>Din prisestimat</Title>
-          <PriceDisplay>
-            <PriceAmount>kr {breakdown.total.toLocaleString('no-NO')}</PriceAmount>
-            <PriceDescription>
-              Basert på {getProjectTypeName(formData.projectType)} på {formData.area} m²
-            </PriceDescription>
-          </PriceDisplay>
-          
-          <PriceBreakdown>
-            <BreakdownItem>
-              <span>Materialer (60%)</span>
-              <span>kr {breakdown.materials.toLocaleString('no-NO')}</span>
-            </BreakdownItem>
-            <BreakdownItem>
-              <span>Arbeid (40%)</span>
-              <span>kr {breakdown.labor.toLocaleString('no-NO')}</span>
-            </BreakdownItem>
-            <BreakdownItem>
-              <span>Total</span>
-              <span>kr {breakdown.total.toLocaleString('no-NO')}</span>
-            </BreakdownItem>
-          </PriceBreakdown>
-          
-          <p style={{ textAlign: 'center', color: '#666', marginTop: '20px' }}>
-            Vi vil kontakte deg innen kort tid for å diskutere prosjektet ditt og gi deg et mer detaljert tilbud.
-          </p>
-          
-          <PDFButton onClick={generatePDF}>
-            📄 Lagre som PDF
-          </PDFButton>
+          <CardContainer>
+            <PriceDisplay>
+              <PriceAmount>kr {breakdown.total.toLocaleString('no-NO')}</PriceAmount>
+              <PriceDescription>
+                Basert på {getProjectTypeName(formData.projectType)} på {formData.area} m²
+              </PriceDescription>
+            </PriceDisplay>
+            <PriceBreakdown>
+              <BreakdownItem>
+                <span>Materialer (60%)</span>
+                <span>kr {breakdown.materials.toLocaleString('no-NO')}</span>
+              </BreakdownItem>
+              <BreakdownItem>
+                <span>Arbeid (40%)</span>
+                <span>kr {breakdown.labor.toLocaleString('no-NO')}</span>
+              </BreakdownItem>
+              <BreakdownItem>
+                <span>Total</span>
+                <span>kr {breakdown.total.toLocaleString('no-NO')}</span>
+              </BreakdownItem>
+            </PriceBreakdown>
+            <p style={{ textAlign: 'center', color: '#666', marginTop: '20px' }}>
+              Vi vil kontakte deg innen kort tid for å diskutere prosjektet ditt og gi deg et mer detaljert tilbud.
+            </p>
+            <PDFButton onClick={generatePDF}>
+              📄 Lagre som PDF
+            </PDFButton>
+          </CardContainer>
+          <TestimonialsSection>
+            <TestimonialsTitle>Hva våre kunder sier</TestimonialsTitle>
+            <TestimonialCard>
+              <TestimonialText>
+                "Badbygg VVS gjorde en fantastisk jobb med badrenoveringen vår. Profesjonell service og kvalitetsarbeid!"
+              </TestimonialText>
+              <TestimonialAuthor>- Mari og Erik, Oslo</TestimonialAuthor>
+            </TestimonialCard>
+            <TestimonialCard>
+              <TestimonialText>
+                "Rask levering og god kommunikasjon gjennom hele prosessen. Anbefales på det sterkeste!"
+              </TestimonialText>
+              <TestimonialAuthor>- Lars Hansen, Bergen</TestimonialAuthor>
+            </TestimonialCard>
+            <TestimonialCard>
+              <TestimonialText>
+                "Fikk et ærlig tilbud og jobben ble gjort til avtalt pris og tid. Veldig fornøyd!"
+              </TestimonialText>
+              <TestimonialAuthor>- Anne Kristin, Trondheim</TestimonialAuthor>
+            </TestimonialCard>
+          </TestimonialsSection>
         </StepContainer>
-        
-        <TestimonialsSection>
-          <TestimonialsTitle>Hva våre kunder sier</TestimonialsTitle>
-          <TestimonialCard>
-            <TestimonialText>
-              "Badbygg VVS gjorde en fantastisk jobb med badrenoveringen vår. Profesjonell service og kvalitetsarbeid!"
-            </TestimonialText>
-            <TestimonialAuthor>- Mari og Erik, Oslo</TestimonialAuthor>
-          </TestimonialCard>
-          <TestimonialCard>
-            <TestimonialText>
-              "Rask levering og god kommunikasjon gjennom hele prosessen. Anbefales på det sterkeste!"
-            </TestimonialText>
-            <TestimonialAuthor>- Lars Hansen, Bergen</TestimonialAuthor>
-          </TestimonialCard>
-          <TestimonialCard>
-            <TestimonialText>
-              "Fikk et ærlig tilbud og jobben ble gjort til avtalt pris og tid. Veldig fornøyd!"
-            </TestimonialText>
-            <TestimonialAuthor>- Anne Kristin, Trondheim</TestimonialAuthor>
-          </TestimonialCard>
-        </TestimonialsSection>
       </>
     );
   };
