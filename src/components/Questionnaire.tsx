@@ -428,10 +428,7 @@ const PDFButton = styled(Button)`
   }
 `;
 
-const RedStar = styled.span`
-  color: red;
-  margin-left: 2px;
-`;
+
 
 // Add a function to get the current step title
 const stepTitles = [
