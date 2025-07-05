@@ -61,20 +61,52 @@ const StepContainer = styled.div`
   }
 `;
 
+const ProgressBarContainer = styled.div`
+  width: 100%;
+  margin-bottom: 18px;
+`;
+
+const ProgressBarRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+`;
+
+const ProgressLabel = styled.div`
+  font-size: 1rem;
+  color: #222;
+  font-weight: 500;
+`;
+
+const ProgressPercent = styled.div`
+  font-size: 0.95rem;
+  color: #888;
+  font-weight: 400;
+`;
+
 const ProgressBar = styled.div`
   width: 100%;
-  height: 4px;
+  height: 6px;
   background: #e0e0e0;
-  border-radius: 2px;
-  margin-bottom: 30px;
+  border-radius: 3px;
+  position: relative;
 `;
 
 const ProgressFill = styled.div<{ progress: number }>`
   height: 100%;
-  background: #007bff;
-  border-radius: 2px;
+  background: #19c6e6;
+  border-radius: 3px;
   transition: width 0.3s ease;
   width: ${props => props.progress}%;
+`;
+
+const StepTitle = styled.h2`
+  color: #222;
+  margin: 18px 0 10px 0;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
 `;
 
 const StepCounter = styled.div`
@@ -414,6 +446,16 @@ const RedStar = styled.span`
   margin-left: 2px;
 `;
 
+// Add a function to get the current step title
+const stepTitles = [
+  '',
+  'Velg prosjekttype',
+  'Prosjektdetaljer',
+  'Lokasjon',
+  'Kontaktinformasjon',
+  'Din prisestimat',
+];
+
 const Questionnaire: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
@@ -736,14 +778,16 @@ const Questionnaire: React.FC = () => {
 
   return (
     <Container>
-      <ProgressBar>
-        <ProgressFill progress={progress} />
-      </ProgressBar>
-      
-      <StepCounter>
-        <StepNumber>{currentStep}</StepNumber>
-        {currentStep} av {totalSteps}
-      </StepCounter>
+      <ProgressBarContainer>
+        <ProgressBarRow>
+          <ProgressLabel>Steg {currentStep} av {totalSteps}</ProgressLabel>
+          <ProgressPercent>{Math.round(progress)}% fullført</ProgressPercent>
+        </ProgressBarRow>
+        <ProgressBar>
+          <ProgressFill progress={progress} />
+        </ProgressBar>
+        <StepTitle>{stepTitles[currentStep]}</StepTitle>
+      </ProgressBarContainer>
 
       {renderCurrentStep()}
 
