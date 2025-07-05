@@ -17,6 +17,9 @@ interface FormData {
   email: string;
   phone: string;
   consent: boolean;
+  roomSize: string;
+  services: string[];
+  budgetRange: string;
 }
 
 interface ProjectType {
@@ -35,6 +38,53 @@ const PROJECT_TYPES: ProjectType[] = [
   { id: 'bad', name: 'Pusse opp bad', description: 'Bathroom renovation' },
   { id: 'garasje', name: 'Bygge garasje', description: 'Build garage' },
   { id: 'annet', name: 'Annet', description: 'Other project type' }
+];
+
+// Map projectType to size options
+const SIZE_OPTIONS_MAP: Record<string, { id: string; label: string; desc: string; price: string }[]> = {
+  bad: [
+    { id: 'small', label: 'Lite bad', desc: 'Under 6 m² - Vanlig i leiligheter', price: 'Fra 180.000 kr' },
+    { id: 'medium', label: 'Middels bad', desc: '6-10 m² - Standard familie', price: 'Fra 250.000 kr' },
+    { id: 'large', label: 'Stort bad', desc: '10-15 m² - Romslig bad', price: 'Fra 350.000 kr' },
+    { id: 'xlarge', label: 'Ekstra stort', desc: 'Over 15 m² - Luksusbad', price: 'Fra 450.000 kr' },
+  ],
+  garasje: [
+    { id: 'single', label: 'Enkelgarasje', desc: '18-22 m² - 1 bil', price: 'Fra 120.000 kr' },
+    { id: 'double', label: 'Dobbelgarasje', desc: '36-44 m² - 2 biler', price: 'Fra 210.000 kr' },
+    { id: 'large', label: 'Ekstra stor garasje', desc: 'Over 44 m² - Flere biler', price: 'Fra 300.000 kr' },
+  ],
+  default: [
+    { id: 'small', label: 'Liten', desc: 'Lite prosjekt', price: '' },
+    { id: 'medium', label: 'Middels', desc: 'Middels størrelse', price: '' },
+    { id: 'large', label: 'Stor', desc: 'Stort prosjekt', price: '' },
+    { id: 'custom', label: 'Annet', desc: 'Egendefinert størrelse', price: '' },
+  ],
+};
+
+// Add services options
+const SERVICES_OPTIONS = [
+  { id: 'plumbing', label: 'Rørleggerarbeid', desc: 'Installasjon av rør og sanitærutstyr', price: '+35.000 kr' },
+  { id: 'electric', label: 'Elektrikerarbeid', desc: 'Belysning og elektriske installasjoner', price: '+25.000 kr' },
+  { id: 'tiling', label: 'Flislegging', desc: 'Vegg- og gulvfliser', price: '+45.000 kr' },
+  { id: 'flooring', label: 'Gulvarbeid', desc: 'Gulvbelegg og underlag', price: '+20.000 kr' },
+  { id: 'painting', label: 'Maling', desc: 'Maling av vegger og tak', price: '+15.000 kr' },
+  { id: 'ventilation', label: 'Ventilasjon', desc: 'Ventilasjonsanlegg', price: '+18.000 kr' },
+  { id: 'fixtures', label: 'Armatur og utstyr', desc: 'Dusj, kran, speil og tilbehør', price: '+30.000 kr' },
+  { id: 'membrane', label: 'Tetting og membran', desc: 'Fuktsperre og tetting', price: '+22.000 kr' },
+];
+
+const BUDGET_OPTIONS = [
+  { id: 'budget', label: 'Budsjett', desc: '100.000 - 200.000 kr', sub: 'Grunnleggende renovering' },
+  { id: 'standard', label: 'Standard', desc: '200.000 - 350.000 kr', sub: 'Balanse mellom kvalitet og pris' },
+  { id: 'premium', label: 'Premium', desc: '350.000 - 500.000 kr', sub: 'Høy kvalitet og gode materialer' },
+  { id: 'luxury', label: 'Luksus', desc: '500.000+ kr', sub: 'Beste materialer og finish' },
+];
+
+const TIMELINE_OPTIONS = [
+  { id: 'asap', label: 'Så snart som mulig' },
+  { id: '1-3m', label: 'Innen 1-3 måneder' },
+  { id: '3-6m', label: 'Innen 3-6 måneder' },
+  { id: 'planning', label: 'Kun planlegging nå' },
 ];
 
 // Styled components
@@ -509,12 +559,15 @@ const Questionnaire: React.FC = () => {
     name: '',
     email: '',
     phone: '',
-    consent: false
+    consent: false,
+    roomSize: '',
+    services: [],
+    budgetRange: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
 
-  const totalSteps = 5;
+  const totalSteps = 8;
   const progress = (currentStep / totalSteps) * 100;
 
   const updateFormData = (field: keyof FormData, value: any) => {
@@ -615,11 +668,19 @@ const Questionnaire: React.FC = () => {
       case 1:
         return formData.projectType !== '';
       case 2:
-        return formData.description !== '' && formData.area > 0;
+        return formData.roomSize !== '';
       case 3:
-        return formData.location !== '';
+        return formData.services.length > 0;
       case 4:
+        return formData.description !== '' && formData.area > 0;
+      case 5:
+        return formData.location !== '';
+      case 6:
         return formData.name !== '' && formData.email !== '' && formData.phone !== '' && formData.consent;
+      case 7:
+        return formData.startDate !== '' && formData.budgetRange !== '';
+      case 8:
+        return true;
       default:
         return true;
     }
@@ -643,7 +704,68 @@ const Questionnaire: React.FC = () => {
     </StepContainer>
   );
 
-  const renderStep2 = () => (
+  const renderStep2 = () => {
+    // Map projectType to size options
+    let sizeOptions = SIZE_OPTIONS_MAP.default;
+    if (formData.projectType === 'bad') sizeOptions = SIZE_OPTIONS_MAP.bad;
+    else if (formData.projectType === 'garasje') sizeOptions = SIZE_OPTIONS_MAP.garasje;
+
+    return (
+      <StepContainer>
+        <Title>Størrelse på prosjektet</Title>
+        <CardContainer>
+          <div style={{ marginBottom: 18, textAlign: 'center', color: '#444' }}>
+            Velg størrelsen som best beskriver ditt prosjekt
+          </div>
+          <ProjectTypeGrid>
+            {sizeOptions.map(opt => (
+              <ProjectTypeCard
+                key={opt.id}
+                selected={formData.roomSize === opt.id}
+                onClick={() => updateFormData('roomSize', opt.id)}
+              >
+                <ProjectTypeName>{opt.label}</ProjectTypeName>
+                <ProjectTypeDescription>{opt.desc}</ProjectTypeDescription>
+                {opt.price && <div style={{ color: '#19c6e6', fontWeight: 700, marginTop: 8 }}>{opt.price}</div>}
+              </ProjectTypeCard>
+            ))}
+          </ProjectTypeGrid>
+        </CardContainer>
+      </StepContainer>
+    );
+  };
+
+  const renderStep3 = () => (
+    <StepContainer>
+      <Title>Hvilke tjenester trenger du?</Title>
+      <CardContainer>
+        <div style={{ marginBottom: 18, textAlign: 'center', color: '#444' }}>
+          Velg alle som gjelder for ditt prosjekt
+        </div>
+        <ProjectTypeGrid>
+          {SERVICES_OPTIONS.map(opt => (
+            <ProjectTypeCard
+              key={opt.id}
+              selected={formData.services.includes(opt.id)}
+              onClick={() => {
+                if (formData.services.includes(opt.id)) {
+                  updateFormData('services', formData.services.filter(s => s !== opt.id));
+                } else {
+                  updateFormData('services', [...formData.services, opt.id]);
+                }
+              }}
+            >
+              <ProjectTypeName>{opt.label}</ProjectTypeName>
+              <ProjectTypeDescription>{opt.desc}</ProjectTypeDescription>
+              <div style={{ color: '#19c6e6', fontWeight: 700, marginTop: 8 }}>{opt.price}</div>
+            </ProjectTypeCard>
+          ))}
+        </ProjectTypeGrid>
+      </CardContainer>
+    </StepContainer>
+  );
+
+  const renderStep4 = () => (
     <StepContainer>
       <Title>Prosjektdetaljer</Title>
       <CardContainer>
@@ -688,7 +810,7 @@ const Questionnaire: React.FC = () => {
     </StepContainer>
   );
 
-  const renderStep3 = () => (
+  const renderStep5 = () => (
     <StepContainer>
       <Title>Lokasjon</Title>
       <CardContainer>
@@ -705,7 +827,7 @@ const Questionnaire: React.FC = () => {
     </StepContainer>
   );
 
-  const renderStep4 = () => (
+  const renderStep6 = () => (
     <StepContainer>
       <Title>Kontaktinformasjon</Title>
       <CardContainer>
@@ -750,7 +872,47 @@ const Questionnaire: React.FC = () => {
     </StepContainer>
   );
 
-  const renderStep5 = () => {
+  const renderStep7 = () => (
+    <StepContainer>
+      <Title>Tidslinje og budsjett</Title>
+      <CardContainer>
+        <div style={{ marginBottom: 18, textAlign: 'center', color: '#444' }}>
+          Når ønsker du å starte, og hva er ditt foretrukne budsjettområde?
+        </div>
+        <div style={{ marginBottom: 18 }}>
+          <div style={{ fontWeight: 600, marginBottom: 8 }}>Når ønsker du å starte?</div>
+          <StartDateGrid>
+            {TIMELINE_OPTIONS.map(opt => (
+              <StartDateCard
+                key={opt.id}
+                selected={formData.startDate === opt.id}
+                onClick={() => updateFormData('startDate', opt.id)}
+              >
+                {opt.label}
+              </StartDateCard>
+            ))}
+          </StartDateGrid>
+        </div>
+        <div>
+          <div style={{ fontWeight: 600, marginBottom: 8 }}>Budsjettområde</div>
+          <ProjectTypeGrid>
+            {BUDGET_OPTIONS.map(opt => (
+              <ProjectTypeCard
+                key={opt.id}
+                selected={formData.budgetRange === opt.id}
+                onClick={() => updateFormData('budgetRange', opt.id)}
+              >
+                <ProjectTypeName>{opt.label} <span style={{ color: '#19c6e6', fontWeight: 700 }}>{opt.desc}</span></ProjectTypeName>
+                <ProjectTypeDescription>{opt.sub}</ProjectTypeDescription>
+              </ProjectTypeCard>
+            ))}
+          </ProjectTypeGrid>
+        </div>
+      </CardContainer>
+    </StepContainer>
+  );
+
+  const renderStep8 = () => {
     const breakdown = getPriceBreakdown();
     return (
       <>
@@ -822,6 +984,12 @@ const Questionnaire: React.FC = () => {
         return renderStep4();
       case 5:
         return renderStep5();
+      case 6:
+        return renderStep6();
+      case 7:
+        return renderStep7();
+      case 8:
+        return renderStep8();
       default:
         return null;
     }
