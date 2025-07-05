@@ -600,7 +600,7 @@ const Questionnaire: React.FC = () => {
     <StepContainer>
       <Title>Kontaktinformasjon</Title>
       <FormGroup>
-        <Label>Navn<RedStar>*</RedStar></Label>
+        <Label>Navn <span style={{ color: 'red', marginLeft: 2 }}>*</span></Label>
         <Input
           type="text"
           value={formData.name}
@@ -609,7 +609,7 @@ const Questionnaire: React.FC = () => {
         />
       </FormGroup>
       <FormGroup>
-        <Label>E-post<RedStar>*</RedStar></Label>
+        <Label>E-post <span style={{ color: 'red', marginLeft: 2 }}>*</span></Label>
         <Input
           type="email"
           value={formData.email}
@@ -618,7 +618,7 @@ const Questionnaire: React.FC = () => {
         />
       </FormGroup>
       <FormGroup>
-        <Label>Telefon<RedStar>*</RedStar></Label>
+        <Label>Telefon <span style={{ color: 'red', marginLeft: 2 }}>*</span></Label>
         <Input
           type="tel"
           value={formData.phone}
