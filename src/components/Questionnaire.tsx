@@ -109,15 +109,6 @@ const ProgressFill = styled.div<{ progress: number }>`
   box-shadow: 0 2px 8px rgba(25,198,230,0.15);
 `;
 
-const StepTitle = styled.h2`
-  color: #1a1a1a;
-  margin: 30px 0 0 0;
-  text-align: center;
-  font-size: 1.45rem;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-`;
-
 const Title = styled.h2`
   color: #333;
   margin-bottom: 20px;
@@ -436,16 +427,6 @@ const PDFButton = styled(Button)`
 `;
 
 
-
-// Add a function to get the current step title
-const stepTitles = [
-  '',
-  'Velg prosjekttype',
-  'Prosjektdetaljer',
-  'Lokasjon',
-  'Kontaktinformasjon',
-  'Din prisestimat',
-];
 
 const Questionnaire: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -777,7 +758,6 @@ const Questionnaire: React.FC = () => {
         <ProgressBar>
           <ProgressFill progress={progress} />
         </ProgressBar>
-        <StepTitle>{stepTitles[currentStep]}</StepTitle>
       </ProgressBarContainer>
 
       {renderCurrentStep()}
