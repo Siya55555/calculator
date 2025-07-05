@@ -63,51 +63,58 @@ const StepContainer = styled.div`
 
 const ProgressBarContainer = styled.div`
   width: 100%;
-  margin-bottom: 28px;
-  background: #fff;
+  margin-bottom: 36px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 `;
 
 const ProgressBarRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
+  padding: 0 2px;
 `;
 
 const ProgressLabel = styled.div`
-  font-size: 1.08rem;
+  font-size: 1.18rem;
   color: #222;
-  font-weight: 600;
+  font-weight: 700;
 `;
 
 const ProgressPercent = styled.div`
-  font-size: 1.02rem;
+  font-size: 1.08rem;
   color: #b0b0b0;
-  font-weight: 500;
+  font-weight: 600;
 `;
 
 const ProgressBar = styled.div`
   width: 100%;
-  height: 8px;
+  height: 18px;
   background: #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
   position: relative;
+  box-shadow: 0 2px 12px rgba(25,198,230,0.10), 0 1.5px 6px rgba(0,0,0,0.04);
+  overflow: hidden;
 `;
 
 const ProgressFill = styled.div<{ progress: number }>`
   height: 100%;
-  background: #19c6e6;
-  border-radius: 8px;
+  background: linear-gradient(90deg, #19c6e6 0%, #00b4d8 100%);
+  border-radius: 12px 0 0 12px;
   transition: width 0.3s cubic-bezier(.4,1.3,.6,1);
   width: ${props => props.progress}%;
+  box-shadow: 0 2px 8px rgba(25,198,230,0.15);
 `;
 
 const StepTitle = styled.h2`
-  color: #222;
-  margin: 22px 0 0 0;
+  color: #1a1a1a;
+  margin: 30px 0 0 0;
   text-align: center;
-  font-size: 1.18rem;
-  font-weight: 600;
+  font-size: 1.45rem;
+  font-weight: 800;
   letter-spacing: 0.01em;
 `;
 
