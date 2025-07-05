@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { calculatePriceBreakdown, getProjectTypeName } from '../config/pricing';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 
 // Types
 interface FormData {
@@ -393,8 +393,6 @@ const PDFButton = styled(Button)`
   }
 `;
 
-
-
 const Questionnaire: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
@@ -439,67 +437,72 @@ const Questionnaire: React.FC = () => {
   };
 
   const generatePDF = async () => {
-    const breakdown = getPriceBreakdown();
-    const pdf = new jsPDF();
-    
-    // Add company header
-    pdf.setFontSize(24);
-    pdf.setTextColor(0, 123, 255);
-    pdf.text('Badbygg VVS', 20, 30);
-    
-    pdf.setFontSize(12);
-    pdf.setTextColor(100, 100, 100);
-    pdf.text('Få ditt prisestimat på 2 minutter', 20, 40);
-    
-    // Add line separator
-    pdf.setDrawColor(0, 123, 255);
-    pdf.setLineWidth(0.5);
-    pdf.line(20, 50, 190, 50);
-    
-    // Add quote details
-    pdf.setFontSize(16);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text('Prisestimat', 20, 70);
-    
-    pdf.setFontSize(12);
-    pdf.text(`Prosjekttype: ${getProjectTypeName(formData.projectType)}`, 20, 85);
-    pdf.text(`Areal: ${formData.area} m²`, 20, 95);
-    pdf.text(`Lokasjon: ${formData.location}`, 20, 105);
-    
-    if (formData.description) {
-      pdf.text(`Beskrivelse: ${formData.description.substring(0, 80)}${formData.description.length > 80 ? '...' : ''}`, 20, 115);
+    try {
+      const breakdown = getPriceBreakdown();
+      const pdf = new jsPDF();
+      
+      // Add company header
+      pdf.setFontSize(24);
+      pdf.setTextColor(0, 123, 255);
+      pdf.text('Badbygg VVS', 20, 30);
+      
+      pdf.setFontSize(12);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text('Få ditt prisestimat på 2 minutter', 20, 40);
+      
+      // Add line separator
+      pdf.setDrawColor(0, 123, 255);
+      pdf.setLineWidth(0.5);
+      pdf.line(20, 50, 190, 50);
+      
+      // Add quote details
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Prisestimat', 20, 70);
+      
+      pdf.setFontSize(12);
+      pdf.text(`Prosjekttype: ${getProjectTypeName(formData.projectType)}`, 20, 85);
+      pdf.text(`Areal: ${formData.area} m²`, 20, 95);
+      pdf.text(`Lokasjon: ${formData.location}`, 20, 105);
+      
+      if (formData.description) {
+        pdf.text(`Beskrivelse: ${formData.description.substring(0, 80)}${formData.description.length > 80 ? '...' : ''}`, 20, 115);
+      }
+      
+      // Add price breakdown
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Prisoverslag:', 20, 140);
+      
+      pdf.setFontSize(12);
+      pdf.text(`Materialer (60%): kr ${breakdown.materials.toLocaleString('no-NO')}`, 20, 155);
+      pdf.text(`Arbeid (40%): kr ${breakdown.labor.toLocaleString('no-NO')}`, 20, 165);
+      
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 123, 255);
+      pdf.text(`Total: kr ${breakdown.total.toLocaleString('no-NO')}`, 20, 180);
+      
+      // Add contact information
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Kontaktinformasjon:', 20, 200);
+      pdf.text(`Navn: ${formData.name}`, 20, 210);
+      pdf.text(`E-post: ${formData.email}`, 20, 220);
+      pdf.text(`Telefon: ${formData.phone}`, 20, 230);
+      
+      // Add footer
+      pdf.setFontSize(10);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text('Dette er et estimat basert på oppgitt informasjon. Kontakt oss for et detaljert tilbud.', 20, 250);
+      pdf.text(`Generert: ${new Date().toLocaleDateString('no-NO')}`, 20, 260);
+      
+      // Save the PDF
+      const fileName = `badbygg-vvs-estimat-${formData.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Kunne ikke generere PDF. Prøv igjen.');
     }
-    
-    // Add price breakdown
-    pdf.setFontSize(14);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text('Prisoverslag:', 20, 140);
-    
-    pdf.setFontSize(12);
-    pdf.text(`Materialer (60%): kr ${breakdown.materials.toLocaleString('no-NO')}`, 20, 155);
-    pdf.text(`Arbeid (40%): kr ${breakdown.labor.toLocaleString('no-NO')}`, 20, 165);
-    
-    pdf.setFontSize(16);
-    pdf.setTextColor(0, 123, 255);
-    pdf.text(`Total: kr ${breakdown.total.toLocaleString('no-NO')}`, 20, 180);
-    
-    // Add contact information
-    pdf.setFontSize(12);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text('Kontaktinformasjon:', 20, 200);
-    pdf.text(`Navn: ${formData.name}`, 20, 210);
-    pdf.text(`E-post: ${formData.email}`, 20, 220);
-    pdf.text(`Telefon: ${formData.phone}`, 20, 230);
-    
-    // Add footer
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 100, 100);
-    pdf.text('Dette er et estimat basert på oppgitt informasjon. Kontakt oss for et detaljert tilbud.', 20, 250);
-    pdf.text(`Generert: ${new Date().toLocaleDateString('no-NO')}`, 20, 260);
-    
-    // Save the PDF
-    const fileName = `badbygg-vvs-estimat-${formData.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
-    pdf.save(fileName);
   };
 
   const canProceed = () => {
