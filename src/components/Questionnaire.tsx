@@ -394,6 +394,11 @@ const PDFButton = styled(Button)`
   }
 `;
 
+const RedStar = styled.span`
+  color: red;
+  margin-left: 2px;
+`;
+
 const Questionnaire: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
@@ -595,7 +600,7 @@ const Questionnaire: React.FC = () => {
     <StepContainer>
       <Title>Kontaktinformasjon</Title>
       <FormGroup>
-        <Label>Navn *</Label>
+        <Label>Navn<RedStar>*</RedStar></Label>
         <Input
           type="text"
           value={formData.name}
@@ -604,7 +609,7 @@ const Questionnaire: React.FC = () => {
         />
       </FormGroup>
       <FormGroup>
-        <Label>E-post *</Label>
+        <Label>E-post<RedStar>*</RedStar></Label>
         <Input
           type="email"
           value={formData.email}
@@ -613,7 +618,7 @@ const Questionnaire: React.FC = () => {
         />
       </FormGroup>
       <FormGroup>
-        <Label>Telefon *</Label>
+        <Label>Telefon<RedStar>*</RedStar></Label>
         <Input
           type="tel"
           value={formData.phone}
