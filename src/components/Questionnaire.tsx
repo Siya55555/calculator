@@ -109,21 +109,6 @@ const StepTitle = styled.h2`
   font-weight: 600;
 `;
 
-const StepCounter = styled.div`
-  text-align: center;
-  margin-bottom: 20px;
-  color: white;
-  font-size: 1.1rem;
-  font-weight: 500;
-`;
-
-const StepNumber = styled.span`
-  background: rgba(255, 255, 255, 0.2);
-  padding: 8px 16px;
-  border-radius: 20px;
-  margin: 0 5px;
-`;
-
 const Title = styled.h2`
   color: #333;
   margin-bottom: 20px;
