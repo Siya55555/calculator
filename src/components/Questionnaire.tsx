@@ -40,11 +40,11 @@ const PROJECT_TYPES: ProjectType[] = [
 const Container = styled.div`
   max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 20px 20px 40px 20px;
   font-family: 'Arial', sans-serif;
   
   @media (max-width: 768px) {
-    padding: 15px;
+    padding: 15px 8px 60px 8px;
     max-width: 100%;
   }
 `;
@@ -57,7 +57,7 @@ const StepContainer = styled.div`
   margin-bottom: 20px;
   
   @media (max-width: 768px) {
-    padding: 20px;
+    padding: 18px 8px 24px 8px;
   }
 `;
 
@@ -152,7 +152,7 @@ const FormGroup = styled.div`
   margin-bottom: 20px;
   
   @media (max-width: 768px) {
-    margin-bottom: 15px;
+    margin-bottom: 22px;
   }
 `;
 
@@ -161,19 +161,21 @@ const Label = styled.label`
   margin-bottom: 8px;
   font-weight: 600;
   color: #333;
+  font-size: 16px;
   
   @media (max-width: 768px) {
-    font-size: 14px;
+    font-size: 17px;
   }
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 12px;
+  padding: 16px;
   border: 2px solid #e0e0e0;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 17px;
   transition: border-color 0.2s ease;
+  min-height: 44px;
 
   &:focus {
     outline: none;
@@ -181,17 +183,18 @@ const Input = styled.input`
   }
   
   @media (max-width: 768px) {
-    padding: 10px;
-    font-size: 16px; // Prevents zoom on iOS
+    padding: 14px;
+    font-size: 17px;
+    min-height: 48px;
   }
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
-  padding: 12px;
+  padding: 16px;
   border: 2px solid #e0e0e0;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 17px;
   min-height: 100px;
   resize: vertical;
   transition: border-color 0.2s ease;
@@ -202,20 +205,21 @@ const TextArea = styled.textarea`
   }
   
   @media (max-width: 768px) {
-    padding: 10px;
-    font-size: 16px;
+    padding: 14px;
+    font-size: 17px;
     min-height: 80px;
   }
 `;
 
 const Select = styled.select`
   width: 100%;
-  padding: 12px;
+  padding: 16px;
   border: 2px solid #e0e0e0;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 17px;
   background: white;
   transition: border-color 0.2s ease;
+  min-height: 44px;
 
   &:focus {
     outline: none;
@@ -223,8 +227,9 @@ const Select = styled.select`
   }
   
   @media (max-width: 768px) {
-    padding: 10px;
-    font-size: 16px;
+    padding: 14px;
+    font-size: 17px;
+    min-height: 48px;
   }
 `;
 
@@ -237,17 +242,26 @@ const CheckboxContainer = styled.div`
 
 const Checkbox = styled.input`
   margin-top: 2px;
+  min-width: 24px;
+  min-height: 24px;
+  accent-color: #007bff;
+  @media (max-width: 768px) {
+    min-width: 28px;
+    min-height: 28px;
+  }
 `;
 
 const Button = styled.button`
   background: #007bff;
   color: white;
   border: none;
-  padding: 12px 24px;
+  padding: 16px 28px;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 17px;
   cursor: pointer;
   transition: background 0.2s ease;
+  min-height: 48px;
+  min-width: 44px;
 
   &:hover {
     background: #0056b3;
@@ -259,9 +273,10 @@ const Button = styled.button`
   }
   
   @media (max-width: 768px) {
-    padding: 15px 20px;
-    font-size: 16px;
+    padding: 18px 20px;
+    font-size: 17px;
     width: 100%;
+    min-height: 52px;
   }
 `;
 
